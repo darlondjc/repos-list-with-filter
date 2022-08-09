@@ -7,7 +7,7 @@ export function RepoList(props: any) {
             <h3>Lista de repositórios</h3>
             <ul>
                 {props.lista?.map((repo: Repository) => {
-                    console.log(repo);
+                    //console.log(repo);
                     return (
                         <li key={repo.name}>
                             <a href={repo.html_url} target="_blank">{repo.name.toLowerCase()}</a> {repo.archived && '(Arquivado)'} 

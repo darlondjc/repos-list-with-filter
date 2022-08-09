@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import { useEffect, useState } from "react";
 import { RepoList } from "../RepoList";
 import { SearchBar } from "../SearchBar";
 
@@ -19,68 +19,57 @@ export type StateData = {
 
 const urlGitHub = 'https://api.github.com/users/darlondjc/repos';
 
-class Repositorios extends React.Component<{}, StateData> {
+export function Repositorios() {
+    const [repositories, setRepositories] = useState<Repository[] | null>(null);
+    const [isFetching, setIsFetching] = useState(true);
+    const [onlyArchivedRepos, setOnlyArchivedRepos] = useState(false);
+    const [termoPesquisa, setTermoPesquisa] = useState('');
 
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            onlyArchivedRepos: false,
-            termoPesquisa: '',
-            isFetching: false,
-            repositories: null
-        };
+    /*assim que a tela for carregada*/
+    useEffect(() => {
+        useFetch(urlGitHub);
+    }, []);
 
-        this.handleChangeTexto = this.handleChangeTexto.bind(this);
-        this.handleChangeCheckbox = this.handleChangeCheckbox.bind(this);
-    }
-
-    useFetch(url: string) {
+    function useFetch(url: string) {
         axios.get(url)
-            .then(response => this.setState({ repositories: response.data }))
-            .finally(() => this.setState({ isFetching: false }));
+            .then(response => setRepositories(response.data))
+            .finally(() => setIsFetching(false));
     }
 
-    componentDidMount() {
-        this.useFetch(urlGitHub);
+    function handleChangeTexto(event: any) {
+        setTermoPesquisa(event.target.value);
     }
 
-    handleChangeTexto(event: any) {
-        this.setState({ termoPesquisa: event.target.value });
+    function handleChangeCheckbox(event: any) {
+        setOnlyArchivedRepos(event.target.checked);
     }
 
-    handleChangeCheckbox(event: any) {
-        this.setState({ onlyArchivedRepos: event.target.checked });
-    }
-
-    render() {
-        //console.log(this.state);
-
-        const listaFilteredRepos = this.state.repositories?.filter(repo => {
-            if (this.state.onlyArchivedRepos) {
-                if (this.state.termoPesquisa != null) {
-                    return repo.archived && repo.name.includes(this.state.termoPesquisa);
-                } else {
-                    return repo.archived;
-                }
+    const listaFilteredRepos = repositories?.filter(repo => {
+        if (onlyArchivedRepos) {
+            if (termoPesquisa != null) {
+                return repo.archived && repo.name.includes(termoPesquisa);
             } else {
-                return repo.name.toLowerCase().includes(this.state.termoPesquisa.toLowerCase());
+                return repo.archived;
             }
-        });
-        //console.log(listaFilteredRepos);
+        } else {
+            return repo.name.toLowerCase().includes(termoPesquisa.toLowerCase());
+        }
+    });
+    //console.log(listaFilteredRepos);
 
-        return (
-            <div>
-                <SearchBar
-                    privateRepos={this.state.onlyArchivedRepos}
-                    termo={this.state.termoPesquisa}
-                    onChangeTexto={this.handleChangeTexto}
-                    onChangeCheckbox={this.handleChangeCheckbox}
-                />
-                {this.state.isFetching && <p>Carregando...</p>}
-                <RepoList lista={listaFilteredRepos} />
-            </div>
-        );
-    }
+    return (
+        <div>
+            <SearchBar
+                privateRepos={onlyArchivedRepos}
+                termo={termoPesquisa}
+                onChangeTexto={handleChangeTexto}
+                onChangeCheckbox={handleChangeCheckbox}
+            />
+            {isFetching && <p>Carregando...</p>}
+            <RepoList lista={listaFilteredRepos} />
+        </div>
+    );
+
 }
 
 export default Repositorios
