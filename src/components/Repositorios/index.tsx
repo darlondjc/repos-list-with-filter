@@ -1,6 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { RepoList } from "../RepoList";
+import TextField from '@mui/material/TextField';
+import Checkbox from "@mui/material/Checkbox";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { Box } from "@mui/material";
 
 export type Repository = {
     name: string;
@@ -30,16 +35,23 @@ export function Repositorios() {
     //console.log(listaFilteredRepos);
 
     return (
-        <div>
-            <form>
-                <input type="text" placeholder="Repo a ser pesquisado..." {...termoPesquisa} />
-                <p>
-                    <input type="checkbox" {...onlyArchivedRepos} /> {' '} Arquivados
-                </p>
-            </form>
-            {buscaDeRepositorios.isFetching && <p>Carregando...</p>}
-            <RepoList lista={listaFilteredRepos} />
-        </div>
+        <Box sx={{ m: 1 }}>
+            <div>
+                <Box
+                    component="form"
+                    sx={{ width: '35ch' }}
+                    noValidate
+                    autoComplete="off"
+                >
+                    <FormGroup>
+                        <TextField id="outlined-basic" label="Repo a ser pesquisado..." variant="outlined" size="small" {...termoPesquisa} />
+                        <FormControlLabel control={<Checkbox {...onlyArchivedRepos} inputProps={{ 'aria-label': 'controlled' }} />} label="Arquivados" />
+                    </FormGroup>
+                </Box>
+                {buscaDeRepositorios.isFetching && <p>Carregando...</p>}
+                <RepoList lista={listaFilteredRepos} />
+            </div>
+        </Box>
     );
 
 }
@@ -62,7 +74,7 @@ function useFormInput(initialValue: any, type: string) {
     const [value, setValue] = useState(initialValue);
 
     function handleChange(event: any) {
-        if (type === 's'){
+        if (type === 's') {
             setValue(event.target.value);
         } else {
             setValue(event.target.checked);
