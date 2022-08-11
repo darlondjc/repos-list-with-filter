@@ -5,13 +5,14 @@ import TextField from '@mui/material/TextField';
 import Checkbox from "@mui/material/Checkbox";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { Box } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 
 export type Repository = {
-    name: string;
-    description: string;
-    archived: boolean;
-    html_url: string;
+    name: string,
+    description: string,
+    archived: boolean,
+    html_url: string,
+    language: string
 };
 
 const urlGitHub = 'https://api.github.com/users/darlondjc/repos';
@@ -35,22 +36,21 @@ export function Repositorios() {
     //console.log(listaFilteredRepos);
 
     return (
-        <Box sx={{ m: 1 }}>
-            <div>
-                <Box
-                    component="form"
-                    sx={{ width: '35ch' }}
-                    noValidate
-                    autoComplete="off"
-                >
+        <Box sx={{ marginTop: 5 }}>
+            <Grid container>
+                <Grid item xs={4} />
+                <Grid item xs={3}>
+                    <TextField id="outlined-basic" sx={{ width: '95%' }} label="Repo a ser pesquisado..." variant="outlined" size="small" {...termoPesquisa} />
+                </Grid>
+                <Grid item xs={1}>
                     <FormGroup>
-                        <TextField id="outlined-basic" label="Repo a ser pesquisado..." variant="outlined" size="small" {...termoPesquisa} />
                         <FormControlLabel control={<Checkbox {...onlyArchivedRepos} inputProps={{ 'aria-label': 'controlled' }} />} label="Arquivados" />
                     </FormGroup>
-                </Box>
-                {buscaDeRepositorios.isFetching && <p>Carregando...</p>}
-                <RepoList lista={listaFilteredRepos} />
-            </div>
+                </Grid>
+                <Grid item xs={4} />
+            </Grid>
+            {buscaDeRepositorios.isFetching && <p>Carregando...</p>}
+            <RepoList lista={listaFilteredRepos} />
         </Box>
     );
 
