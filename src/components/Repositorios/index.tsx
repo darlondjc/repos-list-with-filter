@@ -1,11 +1,11 @@
+import { Box, Grid, LinearProgress } from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormGroup from "@mui/material/FormGroup";
+import TextField from '@mui/material/TextField';
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { RepoList } from "../RepoList";
-import TextField from '@mui/material/TextField';
-import Checkbox from "@mui/material/Checkbox";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { Box, Grid } from "@mui/material";
 
 export type Repository = {
     name: string,
@@ -20,9 +20,24 @@ const urlGitHub = 'https://api.github.com/users/darlondjc/repos';
 export function Repositorios() {
     const onlyArchivedRepos = useFormInput(false, 'b');
     const termoPesquisa = useFormInput('', 's');
+    const [repositories, setRepositories] = useState<Repository[] | null>(null);
+    const [isFetching, setIsFetching] = useState(true);
 
-    const buscaDeRepositorios = buscaRepositorios();
-    const listaFilteredRepos = buscaDeRepositorios.repositories?.filter(repo => {
+    const buscaRepositorios = async () => {
+        await axios.get(urlGitHub)
+            .then(response => setRepositories(response.data))
+            .finally(() => setIsFetching(false));
+
+        return { repositories, isFetching };
+    }
+
+    /*assim que a tela for carregada*/
+    useEffect(() => {
+        buscaRepositorios();
+    }, []);
+
+
+    const listaFilteredRepos = repositories?.filter((repo: Repository) => {
         if (onlyArchivedRepos.value) {
             if (termoPesquisa.value != null) {
                 return repo.archived && repo.name.includes(termoPesquisa.value);
@@ -40,7 +55,13 @@ export function Repositorios() {
             <Grid container>
                 <Grid item xs={4} />
                 <Grid item xs={3}>
-                    <TextField id="outlined-basic" sx={{ width: '95%' }} label="Repo a ser pesquisado..." variant="outlined" size="small" {...termoPesquisa} />
+                    <TextField id="outlined-basic"
+                        sx={{ width: '95%' }}
+                        label="Repositório"
+                        helperText="Digite pelo menos uma letra do nome do repositório"
+                        variant="outlined"
+                        size="small"
+                        {...termoPesquisa} />
                 </Grid>
                 <Grid item xs={1}>
                     <FormGroup>
@@ -49,25 +70,10 @@ export function Repositorios() {
                 </Grid>
                 <Grid item xs={4} />
             </Grid>
-            {buscaDeRepositorios.isFetching && <p>Carregando...</p>}
-            <RepoList lista={listaFilteredRepos} />
+            <RepoList lista={listaFilteredRepos} isFetching={isFetching}/>
         </Box>
     );
 
-}
-
-function buscaRepositorios() {
-    const [repositories, setRepositories] = useState<Repository[] | null>(null);
-    const [isFetching, setIsFetching] = useState(true);
-
-    /*assim que a tela for carregada*/
-    useEffect(() => {
-        axios.get(urlGitHub)
-            .then(response => setRepositories(response.data))
-            .finally(() => setIsFetching(false));
-    }, []);
-
-    return { repositories, isFetching };
 }
 
 function useFormInput(initialValue: any, type: string) {

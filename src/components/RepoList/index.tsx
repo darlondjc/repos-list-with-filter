@@ -1,6 +1,5 @@
 import { GitHub } from "@mui/icons-material";
-import { Box, Chip, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from "@mui/material";
-import React from "react";
+import { Box, Chip, Grid, LinearProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from "@mui/material";
 import { Repository } from "../Repositorios";
 
 export function RepoList(props: any) {
@@ -12,16 +11,16 @@ export function RepoList(props: any) {
             <Paper elevation={3}>
                 <List>
                     {props.lista?.map((repo: Repository) => {
-                        console.log(repo);
+                        //console.log(repo);
                         return (
                             <ListItemButton key={repo.name}>
                                 <ListItemIcon>
-                                    <GitHub color="primary"/>
+                                    <GitHub color="primary" />
                                 </ListItemIcon>
                                 <ListItem component="a" href={repo.html_url} target="_blank">
                                     <ListItemText
                                         primary={repo.name.toLowerCase() + (repo.archived ? ' (Arquivado)' : '')}
-                                        secondary={repo.description}/>
+                                        secondary={repo.description} />
                                     {repo.language && <Chip color="primary" label={repo.language} />}
                                 </ListItem>
                             </ListItemButton>
@@ -29,6 +28,7 @@ export function RepoList(props: any) {
                     })}
                 </List>
             </Paper>
+            {props.isFetching && <LinearProgress />}
         </Box >
     );
 }
